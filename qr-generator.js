@@ -11,12 +11,17 @@ const qrConfig = {
     width: 300,
     height: 300,
     type: "svg",
-    data: "",
+    data: "https://example.com",
     qrOptions: {
         errorCorrectionLevel: "H", // High error correction for logo overlay
         typeNumber: 0 // Auto-detect optimal size
     },
-    // Logo will be added dynamically when uploaded
+    imageOptions: {
+        imageSize: 0.22,
+        margin: 8,
+        crossOrigin: "anonymous",
+        hideBackgroundDots: true
+    },
     dotsOptions: {
         type: "extra-rounded",
         color: "#2c3e50"
@@ -87,10 +92,14 @@ function initQRCode() {
 function updateQRCode() {
     const container = document.getElementById("qr-code");
     container.innerHTML = "";
-    
+
     // Get current form values
     const config = getCurrentConfig();
-    
+
+    if (!config) {
+        return; // Don't generate QR for empty content
+    }
+
     try {
         qrCode = new QRCodeStyling(config);
         qrCode.append(container);
@@ -103,13 +112,16 @@ function updateQRCode() {
 
 // Get current configuration from form inputs
 function getCurrentConfig(exportMode = false) {
-    const hideLogo = document.getElementById("hideLogo").checked;
     const logoSize = document.getElementById("logoSize").value / 100;
     const logoMargin = document.getElementById("logoMargin").value;
     
     const size = exportMode ? currentExportSize : 300;
     
     const qrContent = document.getElementById("qrContent").value || "https://example.com";
+
+    if (!qrContent.trim()) {
+        return null;
+    }
     
     const config = {
         width: size,
@@ -137,7 +149,7 @@ function getCurrentConfig(exportMode = false) {
         }
     };
     
-    // Add logo if uploaded and not hidden
+    // Add logo if uploaded
     if (currentLogoDataUrl) {
         config.image = currentLogoDataUrl;
         config.imageOptions = {
