@@ -351,9 +351,6 @@ function usePresetContent(type) {
     let content = "";
     
     switch(type) {
-        case 'contact':
-            content = "https://example.com/contact";
-            break;
         case 'website':
             content = "https://example.com";
             break;
