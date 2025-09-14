@@ -1,6 +1,6 @@
 # 🎨 QR Code Generator
 
-**🌐 Live App: https://qr-maker-psi.vercel.app/**
+**🌐 Live App: https://qrmaker.fyi**
 
 A powerful, feature-rich QR code generator with custom styling, batch processing, and advanced management tools. Create beautiful, professional QR codes with custom logos, colors, and effects - all running entirely in your browser with no server required.
 
@@ -53,7 +53,7 @@ A powerful, feature-rich QR code generator with custom styling, batch processing
 ## 🚀 Getting Started
 
 ### **🌐 Online Use (Recommended)**
-Simply visit **https://qr-maker-psi.vercel.app/** - no installation required!
+Simply visit **https://qrmaker.fyi** - no installation required!
 
 ### **💻 Local Development**
 ```bash
@@ -206,7 +206,7 @@ MIT License - feel free to use, modify, and distribute.
 
 ## 🔗 Links
 
-- **🌐 Live App**: https://qr-maker-psi.vercel.app/
+- **🌐 Live App**: https://qrmaker.fyi
 - **📁 GitHub**: https://github.com/r4z33n4l1/qr-maker
 - **🐛 Report Issues**: https://github.com/r4z33n4l1/qr-maker/issues
 - **📖 Documentation**: This README file
