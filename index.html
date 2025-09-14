@@ -414,10 +414,16 @@
                             <div class="form-row">
                                 <div class="form-group">
                                     <label>Gradient Type</label>
-                                    <select id="dotGradientType" onchange="updateQRCode()">
-                                        <option value="linear">Linear</option>
-                                        <option value="radial">Radial</option>
-                                    </select>
+                                    <div style="display: flex; gap: 15px; margin-top: 8px;">
+                                        <label style="display: flex; align-items: center; font-size: 12px; cursor: pointer;">
+                                            <input type="radio" name="dotGradientType" value="linear" onchange="updateQRCode()" style="margin-right: 6px;" checked>
+                                            Linear
+                                        </label>
+                                        <label style="display: flex; align-items: center; font-size: 12px; cursor: pointer;">
+                                            <input type="radio" name="dotGradientType" value="radial" onchange="updateQRCode()" style="margin-right: 6px;">
+                                            Radial
+                                        </label>
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label>Second Color</label>
@@ -430,11 +436,20 @@
                             <div class="form-row">
                                 <div class="form-group">
                                     <label>Split Direction</label>
-                                    <select id="dualLayerDirection" onchange="updateQRCode()">
-                                        <option value="horizontal" selected>Horizontal (Top/Bottom)</option>
-                                        <option value="vertical">Vertical (Left/Right)</option>
-                                        <option value="diagonal">Diagonal Split</option>
-                                    </select>
+                                    <div style="display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap;">
+                                        <label style="display: flex; align-items: center; font-size: 11px; cursor: pointer;">
+                                            <input type="radio" name="dualLayerDirection" value="horizontal" onchange="updateQRCode()" style="margin-right: 4px;" checked>
+                                            Horizontal
+                                        </label>
+                                        <label style="display: flex; align-items: center; font-size: 11px; cursor: pointer;">
+                                            <input type="radio" name="dualLayerDirection" value="vertical" onchange="updateQRCode()" style="margin-right: 4px;">
+                                            Vertical
+                                        </label>
+                                        <label style="display: flex; align-items: center; font-size: 11px; cursor: pointer;">
+                                            <input type="radio" name="dualLayerDirection" value="diagonal" onchange="updateQRCode()" style="margin-right: 4px;">
+                                            Diagonal
+                                        </label>
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label>Second Layer Color</label>
@@ -557,6 +572,33 @@
             </div>
         </div>
         
+        <!-- Batch Generation Section -->
+        <div class="option-group" style="margin-bottom: 30px;">
+            <h4>📦 Batch QR Generation</h4>
+            <div class="form-row">
+                <div class="form-group" style="flex: 1;">
+                    <label>Upload CSV or text list</label>
+                    <input type="file" id="batchUpload" accept=".csv,.txt" onchange="handleBatchUpload(event)"
+                           style="width: 100%; padding: 8px; border: 2px dashed #ddd; border-radius: 8px; cursor: pointer;">
+                    <small style="color: #666; font-size: 11px;">CSV format: name,url or plain text (one URL per line)</small>
+                </div>
+            </div>
+            <div class="form-row">
+                <textarea id="batchInput" placeholder="Or paste URLs here (one per line)&#10;https://example1.com&#10;https://example2.com&#10;https://example3.com"
+                          style="width: 100%; height: 100px; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-family: monospace; font-size: 12px;"
+                          onchange="processBatchText()" oninput="processBatchText()"></textarea>
+            </div>
+            <div class="form-row" id="batchActions" style="display: none;">
+                <button class="btn" onclick="generateBatchQRs()" style="background: linear-gradient(45deg, #e67e22, #f39c12);">🚀 Generate Batch QRs</button>
+                <button class="btn" onclick="downloadAllBatch()" style="background: linear-gradient(45deg, #27ae60, #2ecc71);" id="downloadBatchBtn" disabled>📥 Download All</button>
+                <span id="batchProgress" style="margin-left: 15px; font-size: 14px; color: #666;"></span>
+            </div>
+            <div id="batchPreview" style="margin-top: 20px; display: none;">
+                <h5 style="color: #333; margin-bottom: 15px;">Generated QR Codes:</h5>
+                <div id="batchQRContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; max-height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; padding: 15px;"></div>
+            </div>
+        </div>
+
         <div class="controls">
             <div class="option-group" style="margin-bottom: 20px;">
                 <h4>📦 Export Options</h4>

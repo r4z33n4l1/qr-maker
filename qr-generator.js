@@ -4,6 +4,8 @@ let qrCode = null;
 let dotGradientEnabled = false;
 let dualLayerEnabled = false;
 let currentLogoDataUrl = null;
+let batchQRCodes = [];
+let batchData = [];
 
 // Base QR Code configuration
 let currentExportSize = 1024;
@@ -136,15 +138,15 @@ function getCurrentConfig(exportMode = false) {
             color: document.getElementById("backgroundColor").value
         },
         dotsOptions: {
-            type: document.getElementById("dotShape").value,
+            type: document.querySelector('input[name="dotShape"]:checked').value,
             color: document.getElementById("dotColor").value
         },
         cornersSquareOptions: {
-            type: document.getElementById("cornerShape").value,
+            type: document.querySelector('input[name="cornerShape"]:checked').value,
             color: document.getElementById("cornerColor").value
         },
         cornersDotOptions: {
-            type: document.getElementById("cornerDotShape").value,
+            type: document.querySelector('input[name="cornerDotShape"]:checked').value,
             color: document.getElementById("cornerDotColor").value
         }
     };
@@ -162,7 +164,7 @@ function getCurrentConfig(exportMode = false) {
     
     // Add gradient if enabled (but not if dual layer is enabled)
     if (dotGradientEnabled && !dualLayerEnabled) {
-        const gradientType = document.getElementById("dotGradientType").value;
+        const gradientType = document.querySelector('input[name="dotGradientType"]:checked').value;
         const color2 = document.getElementById("dotColor2").value;
         
         config.dotsOptions.gradient = {
@@ -177,7 +179,7 @@ function getCurrentConfig(exportMode = false) {
     
     // Add dual layer effect if enabled
     if (dualLayerEnabled) {
-        const direction = document.getElementById("dualLayerDirection").value;
+        const direction = document.querySelector('input[name="dualLayerDirection"]:checked').value;
         const dualColor = document.getElementById("dotDualColor").value;
         const splitPosition = document.getElementById("dualLayerSplit").value / 100;
         const mainColor = document.getElementById("dotColor").value;
@@ -322,7 +324,7 @@ function applyDualLayerPreset(presetName) {
     // Apply preset values
     document.getElementById('dotColor').value = preset.color1;
     document.getElementById('dotDualColor').value = preset.color2;
-    document.getElementById('dualLayerDirection').value = preset.direction;
+    document.querySelector(`input[name="dualLayerDirection"][value="${preset.direction}"]`).checked = true;
     document.getElementById('dualLayerSplit').value = preset.split;
     
     updateSplitLabel();
@@ -380,9 +382,9 @@ function applyPreset(presetName) {
     if (!preset) return;
     
     // Update form inputs
-    document.getElementById("dotShape").value = preset.dotShape;
+    document.querySelector(`input[name="dotShape"][value="${preset.dotShape}"]`).checked = true;
     document.getElementById("dotColor").value = preset.dotColor;
-    document.getElementById("cornerShape").value = preset.cornerShape;
+    document.querySelector(`input[name="cornerShape"][value="${preset.cornerShape}"]`).checked = true;
     document.getElementById("cornerColor").value = preset.cornerColor;
     document.getElementById("cornerDotColor").value = preset.cornerDotColor;
     document.getElementById("backgroundColor").value = preset.backgroundColor;
@@ -402,11 +404,11 @@ function applyPreset(presetName) {
 // Reset to default configuration
 function resetToDefault() {
     // Reset form to default values
-    document.getElementById("dotShape").value = "extra-rounded";
+    document.querySelector('input[name="dotShape"][value="rounded"]').checked = true;
     document.getElementById("dotColor").value = "#2c3e50";
-    document.getElementById("cornerShape").value = "extra-rounded";
+    document.querySelector('input[name="cornerShape"][value="extra-rounded"]').checked = true;
     document.getElementById("cornerColor").value = "#c0392b";
-    document.getElementById("cornerDotShape").value = "dot";
+    document.querySelector('input[name="cornerDotShape"][value="dot"]').checked = true;
     document.getElementById("cornerDotColor").value = "#2c3e50";
     document.getElementById("backgroundColor").value = "#ffffff";
     document.getElementById("logoSize").value = 22;
@@ -426,7 +428,7 @@ function resetToDefault() {
     }
     
     // Reset dual layer controls
-    document.getElementById("dualLayerDirection").value = "horizontal";
+    document.querySelector('input[name="dualLayerDirection"][value="horizontal"]').checked = true;
     document.getElementById("dotDualColor").value = "#27ae60";
     document.getElementById("dualLayerSplit").value = 50;
     updateSplitLabel();
@@ -699,6 +701,236 @@ function setupDragAndDrop() {
             logoUpload.files = files;
             handleLogoUpload({ target: { files: files } });
         }
+    });
+}
+
+// Batch QR Code Generation Functions
+
+// Handle batch file upload
+function handleBatchUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+        showError("Batch file too large. Please use a file under 10MB.");
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const content = e.target.result;
+
+        if (file.name.toLowerCase().endsWith('.csv')) {
+            processBatchCSV(content);
+        } else {
+            processBatchTextContent(content);
+        }
+    };
+    reader.onerror = function() {
+        showError("Failed to read batch file.");
+    };
+    reader.readAsText(file);
+}
+
+// Process CSV content
+function processBatchCSV(content) {
+    const lines = content.split('\n').filter(line => line.trim());
+    const data = [];
+
+    lines.forEach((line, index) => {
+        const columns = line.split(',').map(col => col.trim());
+        if (columns.length >= 1) {
+            const url = columns.length >= 2 ? columns[1] : columns[0];
+            const name = columns.length >= 2 ? columns[0] : `QR Code ${index + 1}`;
+
+            if (url) {
+                data.push({ name: name, url: url });
+            }
+        }
+    });
+
+    if (data.length === 0) {
+        showError("No valid URLs found in CSV file.");
+        return;
+    }
+
+    batchData = data;
+    document.getElementById("batchActions").style.display = "flex";
+    document.getElementById("batchInput").value = data.map(item => item.url).join('\n');
+    showSuccess(`Loaded ${data.length} URLs from CSV file.`);
+}
+
+// Process text content
+function processBatchTextContent(content) {
+    const lines = content.split('\n').filter(line => line.trim());
+    const data = [];
+
+    lines.forEach((line, index) => {
+        const url = line.trim();
+        if (url) {
+            data.push({ name: `QR Code ${index + 1}`, url: url });
+        }
+    });
+
+    if (data.length === 0) {
+        showError("No valid URLs found.");
+        return;
+    }
+
+    batchData = data;
+    document.getElementById("batchActions").style.display = "flex";
+    showSuccess(`Loaded ${data.length} URLs.`);
+}
+
+// Process batch text from textarea
+function processBatchText() {
+    const content = document.getElementById("batchInput").value;
+    if (!content.trim()) {
+        document.getElementById("batchActions").style.display = "none";
+        batchData = [];
+        return;
+    }
+
+    processBatchTextContent(content);
+}
+
+// Generate batch QR codes
+function generateBatchQRs() {
+    if (batchData.length === 0) {
+        showError("No URLs to process.");
+        return;
+    }
+
+    const container = document.getElementById("batchQRContainer");
+    const preview = document.getElementById("batchPreview");
+    const progress = document.getElementById("batchProgress");
+    const downloadBtn = document.getElementById("downloadBatchBtn");
+
+    container.innerHTML = "";
+    preview.style.display = "block";
+    downloadBtn.disabled = true;
+    batchQRCodes = [];
+
+    let processed = 0;
+    const total = batchData.length;
+
+    showSuccess(`Starting batch generation of ${total} QR codes...`);
+
+    batchData.forEach((item, index) => {
+        setTimeout(() => {
+            try {
+                const config = getCurrentConfig();
+                config.data = item.url;
+                config.width = 200;
+                config.height = 200;
+
+                const qrCode = new QRCodeStyling(config);
+
+                const itemDiv = document.createElement('div');
+                itemDiv.style.cssText = `
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                    padding: 10px;
+                    text-align: center;
+                    background: white;
+                `;
+
+                const qrDiv = document.createElement('div');
+                qrDiv.style.cssText = `
+                    width: 150px;
+                    height: 150px;
+                    margin: 0 auto 10px;
+                    border: 1px solid #eee;
+                    border-radius: 6px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                `;
+
+                const nameDiv = document.createElement('div');
+                nameDiv.textContent = item.name;
+                nameDiv.style.cssText = `
+                    font-size: 12px;
+                    font-weight: bold;
+                    color: #333;
+                    margin-bottom: 5px;
+                    word-break: break-word;
+                `;
+
+                const urlDiv = document.createElement('div');
+                urlDiv.textContent = item.url.length > 30 ? item.url.substring(0, 30) + '...' : item.url;
+                urlDiv.style.cssText = `
+                    font-size: 10px;
+                    color: #666;
+                    word-break: break-word;
+                `;
+
+                itemDiv.appendChild(nameDiv);
+                itemDiv.appendChild(qrDiv);
+                itemDiv.appendChild(urlDiv);
+                container.appendChild(itemDiv);
+
+                qrCode.append(qrDiv);
+
+                // Store for download
+                batchQRCodes.push({
+                    name: item.name,
+                    url: item.url,
+                    qrCode: qrCode
+                });
+
+                processed++;
+                progress.textContent = `${processed}/${total} generated`;
+
+                if (processed === total) {
+                    downloadBtn.disabled = false;
+                    showSuccess(`Batch generation complete! Generated ${total} QR codes.`);
+                    progress.textContent = `${total} QR codes ready for download`;
+                }
+
+            } catch (error) {
+                console.error(`Error generating QR for ${item.url}:`, error);
+                processed++;
+                progress.textContent = `${processed}/${total} processed (${processed - batchQRCodes.length} errors)`;
+            }
+        }, index * 100); // Stagger generation to avoid overwhelming the browser
+    });
+}
+
+// Download all batch QR codes
+function downloadAllBatch() {
+    if (batchQRCodes.length === 0) {
+        showError("No QR codes to download.");
+        return;
+    }
+
+    let downloaded = 0;
+    const total = batchQRCodes.length;
+
+    showSuccess(`Starting download of ${total} QR codes...`);
+
+    batchQRCodes.forEach((item, index) => {
+        setTimeout(() => {
+            try {
+                // Download PNG
+                item.qrCode.download({
+                    name: `${item.name.replace(/[^a-zA-Z0-9]/g, '_')}_qr`,
+                    extension: "png"
+                });
+
+                downloaded++;
+                document.getElementById("batchProgress").textContent = `Downloaded ${downloaded}/${total}`;
+
+                if (downloaded === total) {
+                    setTimeout(() => {
+                        showSuccess(`Batch download complete! Downloaded ${total} QR codes.`);
+                    }, 1000);
+                }
+            } catch (error) {
+                console.error(`Error downloading ${item.name}:`, error);
+                downloaded++;
+            }
+        }, index * 300); // Stagger downloads
     });
 }
 
