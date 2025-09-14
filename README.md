@@ -1,97 +1,216 @@
-# ✨ Fashion QR Studio - East West Industrial Park ✨
+# 🎨 QR Code Generator
 
-A fashion-forward QR code generator that creates stunning, customizable QR codes linking to `eastwestindpark.com/contact/razeenali` with the East West Industrial Park logo embedded.
+**🌐 Live App: https://qr-maker-psi.vercel.app/**
 
-## 🎨 Fashion Features
+A powerful, feature-rich QR code generator with custom styling, batch processing, and advanced management tools. Create beautiful, professional QR codes with custom logos, colors, and effects - all running entirely in your browser with no server required.
 
-- **🔥 Dynamic Customization**: Real-time color, shape, and gradient editing
-- **👗 Fashion Collections**: Pre-designed presets (Chic Professional, Bold & Beautiful, Minimalist Elegance, Corporate Couture)
-- **💎 Premium Styling**: Multiple dot shapes (square, rounded, classy, extra-rounded)
-- **🌈 Gradient Magic**: Linear and radial gradients for dots
-- **🎯 Logo Control**: Adjustable logo size and positioning
-- **📱 Responsive Design**: Works beautifully on desktop and mobile
-- **⚡ High Quality**: Level H error correction (up to 30% damage tolerance)
+![QR Generator Preview](https://img.shields.io/badge/Status-Live-brightgreen) ![Version](https://img.shields.io/badge/Version-2.0-blue) ![License](https://img.shields.io/badge/License-MIT-yellow)
 
-## Quick Start
+## ✨ Features Overview
 
-1. Open `index.html` in your web browser, or
-2. Run a local server:
-   ```bash
-   python3 -m http.server 8000
-   ```
-   Then visit `http://localhost:8000`
+### 🎯 **Core QR Generation**
+- **Real-time Generation**: QR codes update instantly as you type
+- **High Error Correction**: Level H (30% damage tolerance) for reliable scanning
+- **Multiple Content Types**: URLs, text, email, phone, WiFi, and contact cards
+- **Custom Sizing**: Export from 256px to 8K (8192px) for any use case
 
-## Files
+### 🎨 **Visual Customization**
+- **Custom Logo Upload**: Drag & drop your own logos with size and margin control
+- **Shape Options**: 6 different dot styles (Square, Dots, Rounded, Extra Rounded, Classy, Classy Rounded)
+- **Color Schemes**: Full color picker for dots, corners, and background
+- **Gradient Effects**: Linear and radial gradients with dual colors
+- **Dual-Layer Effects**: Split colors with horizontal, vertical, or diagonal layouts
+- **Professional Presets**: Pre-designed themes (Professional, Vibrant, Minimal, Corporate)
 
-- `index.html` - Main HTML page with styling
-- `qr-generator.js` - JavaScript QR code generation logic
-- `logo.png` - East West Industrial Park logo
-- `package.json` - Project configuration
+### 📦 **Batch Processing**
+- **CSV Upload**: Process multiple QR codes from spreadsheet data
+- **Text Lists**: Paste multiple URLs (one per line)
+- **Bulk Export**: Download all generated QR codes at once
+- **Progress Tracking**: Real-time generation and download progress
+- **Grid Preview**: See all generated QR codes in an organized layout
 
-## 💫 Customization Options
+### 💾 **History & Management**
+- **Local Storage**: All history saved in your browser (no server required)
+- **Search & Filter**: Find specific QR codes quickly
+- **Favorites System**: Star important QR codes for quick access
+- **Load & Duplicate**: Reuse previous configurations instantly
+- **Export History**: Download your QR code collection
+- **Auto-Save**: Configurations saved automatically
 
-### 🔵 Dot Styles
-- **Shapes**: Square, Dots, Rounded, Extra Rounded, Classy, Classy Rounded
-- **Colors**: Full color picker + quick presets
-- **Gradients**: Linear and radial gradients with dual colors
+### 📱 **Contact Cards (vCard)**
+- **Professional Builder**: Create contact QR codes with a dedicated form
+- **Complete Contact Info**: Name, company, title, phone, email, website, address, notes
+- **vCard 3.0 Standard**: Compatible with all modern devices and apps
+- **Preview Mode**: See the generated vCard data before creating QR code
 
-### 🔷 Corner Styles
-- **Corner Squares**: Square, Dot, Extra Rounded shapes
-- **Corner Dots**: Square or Dot styles
-- **Individual Colors**: Customize each element separately
+### 🔧 **Export Options**
+- **Multiple Formats**: PNG (raster) and SVG (vector) support
+- **Size Presets**: Social Media (512px), Standard (1024px), High Quality (2048px), Print Ready (4096px)
+- **Custom Sizes**: Any size from 256px to 8192px
+- **Batch Downloads**: Download entire collections with one click
+- **Optimized Files**: Clean filenames and efficient file sizes
 
-### 🎨 Background & Logo
-- **Background Colors**: Any color selection
-- **Logo Size**: 10-35% adjustable (22% optimal)
-- **Logo Margin**: 0-20px spacing control
-- **Hide/Show Logo**: Toggle logo visibility
+## 🚀 Getting Started
 
-### 👔 Fashion Collections
-- **Chic Professional**: Elegant navy and grey tones
-- **Bold & Beautiful**: Vibrant reds and oranges
-- **Minimalist Elegance**: Clean black and white
-- **Corporate Couture**: Professional blue palette
+### **🌐 Online Use (Recommended)**
+Simply visit **https://qr-maker-psi.vercel.app/** - no installation required!
 
-## 📊 Technical Specifications
+### **💻 Local Development**
+```bash
+# Clone the repository
+git clone https://github.com/r4z33n4l1/qr-maker.git
+cd qr-maker
 
-- **Target URL**: https://eastwestindpark.com/contact/razeenali
-- **Size**: 1024x1024 pixels (perfect for all uses)
-- **Error Correction**: Level H (High) - 30% damage tolerance
-- **Export Formats**: SVG (vector/print) and PNG (digital)
-- **Logo Integration**: Smart positioning with white knockout
+# Start local server
+python3 -m http.server 8000
+# or
+npm run dev
 
-## 🛠️ Technical Excellence
+# Open in browser
+open http://localhost:8000
+```
 
-- **Library**: Advanced `qr-code-styling` for maximum customization
-- **Scannability**: Proper quiet zones and finder pattern protection
-- **Logo Safety**: Smart white knockout prevents scan interference
-- **Mobile First**: Responsive design with touch-friendly controls
-- **Real-time Preview**: Instant updates as you customize
-- **Error Handling**: Graceful fallbacks and user notifications
+## 📖 How to Use
 
-## 📱 Fashion Scanning Tips
+### **Basic QR Code Creation**
+1. **Enter Content**: Type your URL, text, or data in the input field
+2. **Customize Style**: Choose colors, shapes, and effects using the radio buttons
+3. **Upload Logo** (optional): Drag & drop your logo file or click to browse
+4. **Export**: Download as PNG or SVG in your preferred size
 
-- ✅ Test on iOS and Android devices
-- 💡 Ensure good lighting for optimal scanning
-- 📏 Print at 25-30mm minimum for fashion campaigns
-- 🎯 Maintains scannability even at creative angles
-- 🎨 Higher contrast = better scanning performance
-- 📸 Works with camera apps and QR scanner apps
+### **Batch QR Generation**
+1. **Prepare Data**: Create a CSV file with format: `name,url` or prepare a text list
+2. **Upload/Paste**: Use the batch section to upload CSV or paste text
+3. **Generate**: Click "Generate Batch QRs" to create all codes
+4. **Download**: Use "Download All" to get the complete collection
 
-## 🌐 Fashion Platform Support
+### **Contact Cards (vCard)**
+1. **Click Contact Button**: In the content type options
+2. **Fill Form**: Enter contact details in the modal
+3. **Preview** (optional): Check the vCard format
+4. **Generate**: Create the contact QR code
+5. **Test**: Scan with your phone to add the contact
 
-**Desktop & Mobile Browsers:**
-- Chrome, Safari, Firefox, Edge (all modern versions)
-- iOS Safari, Chrome Mobile, Samsung Internet
+### **Managing History**
+1. **Save Current**: Click "Save Current" to store your QR configuration
+2. **View History**: Toggle history panel to see saved codes
+3. **Search**: Use the search box to find specific QR codes
+4. **Favorites**: Star important QR codes for quick access
+5. **Load/Duplicate**: Reuse or copy previous configurations
 
-**Required Technologies:**
-- ES6 JavaScript (for dynamic customization)
-- Canvas API (for QR generation)
-- SVG rendering (for vector export)
-- CSS3 (for fashion animations)
+## 💡 Pro Tips
 
-**Perfect for:**
-- Fashion marketing campaigns
-- Business cards and branding
-- Social media and digital campaigns
-- Print advertisements and posters
+### **For Best Scanning Results**
+- Use high contrast colors (dark QR on light background)
+- Keep logos under 25% of QR size for optimal scanning
+- Test QR codes on different devices before printing
+- Maintain minimum size of 2cm (0.8") for printed materials
+
+### **File Organization**
+- Use descriptive names when saving to history
+- Favorite frequently-used QR codes for quick access
+- Export important QR codes as backups
+- Use batch generation for events or campaigns
+
+### **Performance Optimization**
+- Clear history periodically (limit: 100 saved codes)
+- Close batch preview after downloading to free memory
+- Use standard sizes for faster generation
+- Avoid extremely large custom sizes unless necessary
+
+## 🗄️ Data Storage
+
+### **Local Storage (Browser)**
+- **QR History**: Saved in `localStorage` - persistent across sessions
+- **Configurations**: Colors, shapes, and settings remembered
+- **Uploaded Logos**: Processed in memory only (not stored permanently)
+- **Privacy**: All data stays on your device, never sent to servers
+
+### **File Exports**
+- **QR Codes**: Downloaded to your default downloads folder
+- **Batch Downloads**: Multiple files with organized naming
+- **Format**: `qr-code-{size}px.png/svg` or `{name}_qr.png` for batch
+
+## 🛠️ Technical Specifications
+
+### **Browser Compatibility**
+- ✅ Chrome/Chromium (recommended)
+- ✅ Firefox
+- ✅ Safari
+- ✅ Edge
+- ✅ Mobile browsers (iOS Safari, Chrome Mobile)
+
+### **File Support**
+- **Logo Upload**: PNG, JPG, GIF, SVG (max 5MB)
+- **Batch Input**: CSV, TXT files (max 10MB)
+- **Export**: PNG (raster), SVG (vector)
+
+### **QR Code Specifications**
+- **Error Correction**: Level H (30% recovery capability)
+- **Version**: Auto-detected based on content length
+- **Encoding**: UTF-8 for international characters
+- **Standards**: ISO/IEC 18004:2015 compliant
+
+## 🔒 Privacy & Security
+
+- **No Data Collection**: Zero user data sent to external servers
+- **Local Processing**: All QR generation happens in your browser
+- **No Registration**: No accounts, passwords, or personal information required
+- **Open Source**: Full code available for review on GitHub
+- **No Tracking**: No analytics, cookies, or user tracking
+
+## 📱 Mobile Experience
+
+- **Responsive Design**: Optimized for phones and tablets
+- **Touch-Friendly**: Large buttons and intuitive gestures
+- **Drag & Drop**: Works on mobile with file picker fallback
+- **Offline Ready**: Works without internet after first load
+- **Share Integration**: Easy sharing of generated QR codes
+
+## 🆘 Troubleshooting
+
+### **QR Code Not Generating**
+- Ensure content is not empty
+- Check browser console for errors
+- Try refreshing the page
+- Clear browser cache if issues persist
+
+### **Logo Not Appearing**
+- Check file format (PNG, JPG, GIF, SVG only)
+- Ensure file size is under 5MB
+- Try a different image file
+- Verify logo controls are visible after upload
+
+### **Batch Generation Issues**
+- Check CSV format: `name,url` (comma-separated)
+- Ensure URLs are complete (include http/https)
+- Limit batch size for better performance
+- Check browser memory if generation stops
+
+### **Export Problems**
+- Allow pop-ups and downloads in browser settings
+- Check available disk space
+- Try smaller export sizes
+- Use different browser if downloads fail
+
+## 🤝 Contributing
+
+Found a bug or want to suggest a feature?
+1. **GitHub Issues**: https://github.com/r4z33n4l1/qr-maker/issues
+2. **Fork & Pull Request**: Contributions welcome!
+3. **Feature Requests**: Use GitHub issues with "enhancement" label
+
+## 📄 License
+
+MIT License - feel free to use, modify, and distribute.
+
+## 🔗 Links
+
+- **🌐 Live App**: https://qr-maker-psi.vercel.app/
+- **📁 GitHub**: https://github.com/r4z33n4l1/qr-maker
+- **🐛 Report Issues**: https://github.com/r4z33n4l1/qr-maker/issues
+- **📖 Documentation**: This README file
+
+---
+
+**Made with ❤️ for the community | Powered by qr-code-styling library**
