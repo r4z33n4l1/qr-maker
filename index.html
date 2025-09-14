@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <style>
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 50%, #ff9ff3 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-size: 400% 400%;
+            animation: fashionGradient 15s ease infinite;
+        }
+        
+        @keyframes fashionGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 900px;
+            width: 100%;
+        }
+        
+        .header {
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #333;
+            margin: 0 0 10px 0;
+            font-size: 2.5em;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff6b6b, #feca57, #ff9ff3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+        }
+        
+        .header p {
+            color: #555;
+            margin: 0;
+            font-size: 1.2em;
+            font-style: italic;
+            font-weight: 300;
+        }
+        
+        .qr-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            display: inline-block;
+        }
+        
+        #qr-code {
+            border-radius: 10px;
+            overflow: hidden;
+            max-width: 300px;
+            max-height: 300px;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #qr-code svg {
+            width: 100% !important;
+            height: 100% !important;
+            max-width: 300px;
+            max-height: 300px;
+        }
+        
+        .controls {
+            margin: 30px 0;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+            background: linear-gradient(45deg, #feca57, #ff9ff3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .info {
+            background: #e8f4f8;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 30px;
+            text-align: left;
+        }
+        
+        .info h3 {
+            margin: 0 0 10px 0;
+            color: #17a2b8;
+        }
+        
+        .info p {
+            margin: 5px 0;
+            color: #555;
+        }
+        
+        .url-display {
+            background: #f1f3f4;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            word-break: break-all;
+            color: #333;
+        }
+        
+        .customization-panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .customization-panel h3 {
+            color: #333;
+            margin: 0 0 20px 0;
+            text-align: center;
+            font-size: 1.3em;
+        }
+        
+        .option-group {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .option-group h4 {
+            margin: 0 0 15px 0;
+            color: #555;
+            font-size: 1.1em;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .form-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 120px;
+            flex: 1;
+        }
+        
+        .form-group label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+        }
+        
+        .form-group input[type="color"] {
+            width: 50px;
+            height: 40px;
+            padding: 2px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .form-group input[type="range"] {
+            cursor: pointer;
+        }
+        
+        .color-preset {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .color-preset-btn {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #ddd;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .color-preset-btn:hover {
+            transform: scale(1.1);
+            border-color: #999;
+        }
+        
+        .preview-section {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+        
+        .qr-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+            max-width: 350px;
+            max-height: 350px;
+            width: 100%;
+            aspect-ratio: 1;
+        }
+        
+        .customization-container {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .toggle-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .toggle-btn.inactive {
+            background: #6c757d;
+        }
+        
+        .toggle-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        }
+        
+        .gradient-controls {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .gradient-controls.active {
+            display: block;
+        }
+        
+        @media (max-width: 900px) {
+            .preview-section {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .customization-container {
+                width: 100%;
+                min-width: auto;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.5em;
+            }
+            
+            .btn {
+                display: block;
+                width: 100%;
+                margin: 10px 0;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .form-group {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ QR Code Generator ✨</h1>
+            <p>Create beautiful, customizable QR codes</p>
+        </div>
+        
+        <div class="option-group" style="margin: 20px 0;">
+            <h4>🔗 QR Code Content</h4>
+            <div class="form-row">
+                <div class="form-group" style="flex: 1;">
+                    <label>URL or Text Content</label>
+                    <input type="text" id="qrContent" value=""
+                           placeholder="Enter URL, text, email, phone, etc."
+                           style="width: 100%; padding: 12px; font-size: 14px; border: 2px solid #ddd; border-radius: 8px;"
+                           onchange="updateQRCode()" onkeyup="updateQRCode()">
+                </div>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button class="btn" onclick="usePresetContent('contact')" style="padding: 12px; margin: 0;">📞 Contact</button>
+                </div>
+            </div>
+            <div class="form-row">
+                <button class="btn" onclick="usePresetContent('website')" style="margin: 2px; padding: 8px 16px; font-size: 12px;">🌐 Website</button>
+                <button class="btn" onclick="usePresetContent('email')" style="margin: 2px; padding: 8px 16px; font-size: 12px;">📧 Email</button>
+                <button class="btn" onclick="usePresetContent('phone')" style="margin: 2px; padding: 8px 16px; font-size: 12px;">📞 Phone</button>
+                <button class="btn" onclick="usePresetContent('wifi')" style="margin: 2px; padding: 8px 16px; font-size: 12px;">📶 WiFi</button>
+                <button class="btn" onclick="usePresetContent('text')" style="margin: 2px; padding: 8px 16px; font-size: 12px;">📝 Text</button>
+            </div>
+        </div>
+        
+        <div class="preview-section">
+            <div class="qr-container">
+                <div id="qr-code"></div>
+            </div>
+            
+            <div class="customization-container">
+                <div class="customization-panel">
+                    <h3>✨ Fashion Your QR Code ✨</h3>
+                    
+                    <!-- Dot Style Options -->
+                    <div class="option-group">
+                        <h4>🔸 Dot Style</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Shape</label>
+                                <select id="dotShape" onchange="updateQRCode()">
+                                    <option value="square">Square</option>
+                                    <option value="dots">Dots</option>
+                                    <option value="rounded" selected>Rounded</option>
+                                    <option value="extra-rounded">Extra Rounded</option>
+                                    <option value="classy">Classy</option>
+                                    <option value="classy-rounded">Classy Rounded</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Color</label>
+                                <input type="color" id="dotColor" value="#2c3e50" onchange="updateQRCode()">
+                            </div>
+                        </div>
+                        <div class="color-preset">
+                            <div class="color-preset-btn" style="background: #2c3e50" onclick="setDotColor('#2c3e50')"></div>
+                            <div class="color-preset-btn" style="background: #e74c3c" onclick="setDotColor('#e74c3c')"></div>
+                            <div class="color-preset-btn" style="background: #3498db" onclick="setDotColor('#3498db')"></div>
+                            <div class="color-preset-btn" style="background: #2ecc71" onclick="setDotColor('#2ecc71')"></div>
+                            <div class="color-preset-btn" style="background: #f39c12" onclick="setDotColor('#f39c12')"></div>
+                            <div class="color-preset-btn" style="background: #9b59b6" onclick="setDotColor('#9b59b6')"></div>
+                            <div class="color-preset-btn" style="background: #1a1a1a" onclick="setDotColor('#1a1a1a')"></div>
+                        </div>
+                        <button class="toggle-btn" id="dotGradientToggle" onclick="toggleDotGradient()">Enable Gradient</button>
+                        <button class="toggle-btn" id="dotDualLayerToggle" onclick="toggleDualLayer()" style="margin-left: 10px;">Enable Dual Layer</button>
+                        
+                        <div class="gradient-controls" id="dotGradientControls">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Gradient Type</label>
+                                    <select id="dotGradientType" onchange="updateQRCode()">
+                                        <option value="linear">Linear</option>
+                                        <option value="radial">Radial</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Second Color</label>
+                                    <input type="color" id="dotColor2" value="#34495e" onchange="updateQRCode()">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="gradient-controls" id="dotDualLayerControls">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Split Direction</label>
+                                    <select id="dualLayerDirection" onchange="updateQRCode()">
+                                        <option value="horizontal" selected>Horizontal (Top/Bottom)</option>
+                                        <option value="vertical">Vertical (Left/Right)</option>
+                                        <option value="diagonal">Diagonal Split</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Second Layer Color</label>
+                                    <input type="color" id="dotDualColor" value="#27ae60" onchange="updateQRCode()">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Split Position (%)</label>
+                                    <input type="range" id="dualLayerSplit" min="20" max="80" value="50" onchange="updateQRCode(); updateSplitLabel()">
+                                    <small id="splitLabel">50%</small>
+                                </div>
+                            </div>
+                            <div class="form-row" style="margin-top: 10px;">
+                                <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                                    <button class="btn" onclick="applyDualLayerPreset('christmas')" style="padding: 6px 12px; font-size: 11px; background: linear-gradient(45deg, #e74c3c, #27ae60);">🎄 Christmas</button>
+                                    <button class="btn" onclick="applyDualLayerPreset('sunset')" style="padding: 6px 12px; font-size: 11px; background: linear-gradient(45deg, #f39c12, #e74c3c);">🌅 Sunset</button>
+                                    <button class="btn" onclick="applyDualLayerPreset('ocean')" style="padding: 6px 12px; font-size: 11px; background: linear-gradient(45deg, #3498db, #2ecc71);">🌊 Ocean</button>
+                                    <button class="btn" onclick="applyDualLayerPreset('royal')" style="padding: 6px 12px; font-size: 11px; background: linear-gradient(45deg, #9b59b6, #f39c12);">👑 Royal</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Corner Style Options -->
+                    <div class="option-group">
+                        <h4>📐 Corner Squares</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Shape</label>
+                                <select id="cornerShape" onchange="updateQRCode()">
+                                    <option value="square">Square</option>
+                                    <option value="dot">Dot</option>
+                                    <option value="extra-rounded" selected>Extra Rounded</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Color</label>
+                                <input type="color" id="cornerColor" value="#c0392b" onchange="updateQRCode()">
+                            </div>
+                        </div>
+                        <div class="color-preset">
+                            <div class="color-preset-btn" style="background: #c0392b" onclick="setCornerColor('#c0392b')"></div>
+                            <div class="color-preset-btn" style="background: #e74c3c" onclick="setCornerColor('#e74c3c')"></div>
+                            <div class="color-preset-btn" style="background: #3498db" onclick="setCornerColor('#3498db')"></div>
+                            <div class="color-preset-btn" style="background: #2ecc71" onclick="setCornerColor('#2ecc71')"></div>
+                            <div class="color-preset-btn" style="background: #f39c12" onclick="setCornerColor('#f39c12')"></div>
+                            <div class="color-preset-btn" style="background: #9b59b6" onclick="setCornerColor('#9b59b6')"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Corner Dot Style -->
+                    <div class="option-group">
+                        <h4>⚫ Corner Dots</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Shape</label>
+                                <select id="cornerDotShape" onchange="updateQRCode()">
+                                    <option value="square">Square</option>
+                                    <option value="dot" selected>Dot</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Color</label>
+                                <input type="color" id="cornerDotColor" value="#2c3e50" onchange="updateQRCode()">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Background Options -->
+                    <div class="option-group">
+                        <h4>🎭 Background</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Background Color</label>
+                                <input type="color" id="backgroundColor" value="#ffffff" onchange="updateQRCode()">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Logo Options -->
+                    <div class="option-group">
+                        <h4>🖼️ Logo Settings</h4>
+                        <div class="form-row">
+                            <div class="form-group" style="flex: 1;">
+                                <label>Upload Logo</label>
+                                <input type="file" id="logoUpload" accept="image/*" onchange="handleLogoUpload(event)"
+                                       style="width: 100%; padding: 8px; border: 2px dashed #ddd; border-radius: 8px; cursor: pointer;">
+                                <small style="color: #666; font-size: 11px;">PNG, JPG, SVG supported. Max 5MB</small>
+                            </div>
+                        </div>
+                        <div class="form-row" id="logoControls" style="display: none;">
+                            <div class="form-group">
+                                <label>Logo Size (%)</label>
+                                <input type="range" id="logoSize" min="10" max="35" value="22" onchange="updateQRCode(); updateLogoSizeLabel()">
+                                <small id="logoSizeLabel">22%</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Logo Margin</label>
+                                <input type="range" id="logoMargin" min="0" max="20" value="8" onchange="updateQRCode(); updateLogoMarginLabel()">
+                                <small id="logoMarginLabel">8px</small>
+                            </div>
+                        </div>
+                        <div class="form-row" id="logoActions" style="display: none;">
+                            <button class="btn" onclick="removeLogo()" style="background: #e74c3c; padding: 8px 16px; font-size: 12px;">❌ Remove Logo</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Fashion Presets -->
+                    <div class="option-group">
+                        <h4>👗 Fashion Collections</h4>
+                        <div class="form-row">
+                            <button class="btn" onclick="applyPreset('professional')" style="margin: 5px; background: linear-gradient(45deg, #2c3e50, #34495e);">Chic Professional</button>
+                            <button class="btn" onclick="applyPreset('vibrant')" style="margin: 5px; background: linear-gradient(45deg, #e74c3c, #f39c12);">Bold & Beautiful</button>
+                            <button class="btn" onclick="applyPreset('minimal')" style="margin: 5px; background: linear-gradient(45deg, #1a1a1a, #333);">Minimalist Elegance</button>
+                            <button class="btn" onclick="applyPreset('corporate')" style="margin: 5px; background: linear-gradient(45deg, #3498db, #2980b9);">Corporate Couture</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="option-group" style="margin-bottom: 20px;">
+                <h4>📦 Export Options</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Export Size</label>
+                        <select id="exportSize" onchange="updateExportSize()">
+                            <option value="512">512px - Social Media</option>
+                            <option value="1024" selected>1024px - Standard</option>
+                            <option value="2048">2048px - High Quality</option>
+                            <option value="4096">4096px - Print Ready</option>
+                            <option value="custom">Custom Size</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="customSizeGroup" style="display: none;">
+                        <label>Custom Size (px)</label>
+                        <input type="number" id="customSize" value="1024" min="256" max="8192" step="64">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <button class="btn" onclick="downloadSVG()" style="background: linear-gradient(45deg, #27ae60, #2ecc71);">📄 Download SVG</button>
+                    <button class="btn" onclick="downloadPNG()" style="background: linear-gradient(45deg, #3498db, #2980b9);">🖼️ Download PNG</button>
+                </div>
+                <div class="form-row">
+                    <button class="btn" onclick="downloadMultipleSizes()" style="background: linear-gradient(45deg, #9b59b6, #8e44ad);">📦 Download Pack</button>
+                    <button class="btn" onclick="resetToDefault()" style="background: linear-gradient(45deg, #95a5a6, #7f8c8d);">🔄 Reset</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info">
+            <h3>🎆 QR Code Features:</h3>
+            <p>• 💪 High error correction (Level H) - up to 30% damage tolerance</p>
+            <p>• 🖼️ Custom logo upload support</p>
+            <p>• 🖨️ Customizable colors, shapes, and gradients</p>
+            <p>• 📱 Optimized for both print and digital use</p>
+            <p>• 🔗 Supports URLs, text, email, phone, WiFi, and more</p>
+            <p>• 🗺️ Scannable from various angles and lighting conditions</p>
+            <p>• ✨ Professional quality with multiple export formats</p>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/qr-code-styling@1.8.4/lib/qr-code-styling.js"></script>
+    <script src="qr-generator.js"></script>
+</body>
+</html>
