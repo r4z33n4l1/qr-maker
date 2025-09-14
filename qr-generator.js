@@ -6,6 +6,8 @@ let dualLayerEnabled = false;
 let currentLogoDataUrl = null;
 let batchQRCodes = [];
 let batchData = [];
+let qrHistory = [];
+let currentHistoryFilter = '';
 
 // Base QR Code configuration
 let currentExportSize = 1024;
@@ -138,15 +140,15 @@ function getCurrentConfig(exportMode = false) {
             color: document.getElementById("backgroundColor").value
         },
         dotsOptions: {
-            type: document.querySelector('input[name="dotShape"]:checked').value,
+            type: document.querySelector('input[name="dotShape"]:checked')?.value || 'rounded',
             color: document.getElementById("dotColor").value
         },
         cornersSquareOptions: {
-            type: document.querySelector('input[name="cornerShape"]:checked').value,
+            type: document.querySelector('input[name="cornerShape"]:checked')?.value || 'extra-rounded',
             color: document.getElementById("cornerColor").value
         },
         cornersDotOptions: {
-            type: document.querySelector('input[name="cornerDotShape"]:checked').value,
+            type: document.querySelector('input[name="cornerDotShape"]:checked')?.value || 'dot',
             color: document.getElementById("cornerDotColor").value
         }
     };
@@ -164,7 +166,7 @@ function getCurrentConfig(exportMode = false) {
     
     // Add gradient if enabled (but not if dual layer is enabled)
     if (dotGradientEnabled && !dualLayerEnabled) {
-        const gradientType = document.querySelector('input[name="dotGradientType"]:checked').value;
+        const gradientType = document.querySelector('input[name="dotGradientType"]:checked')?.value || 'linear';
         const color2 = document.getElementById("dotColor2").value;
         
         config.dotsOptions.gradient = {
@@ -179,7 +181,7 @@ function getCurrentConfig(exportMode = false) {
     
     // Add dual layer effect if enabled
     if (dualLayerEnabled) {
-        const direction = document.querySelector('input[name="dualLayerDirection"]:checked').value;
+        const direction = document.querySelector('input[name="dualLayerDirection"]:checked')?.value || 'horizontal';
         const dualColor = document.getElementById("dotDualColor").value;
         const splitPosition = document.getElementById("dualLayerSplit").value / 100;
         const mainColor = document.getElementById("dotColor").value;
@@ -669,8 +671,9 @@ document.addEventListener("DOMContentLoaded", () => {
         customSizeInput.addEventListener("input", updateCustomSize);
     }
     
-    // Initialize QR Code and drag-and-drop
+    // Initialize QR Code, drag-and-drop, and history
     setupDragAndDrop();
+    loadHistory();
     initQRCode();
 });
 
@@ -932,6 +935,343 @@ function downloadAllBatch() {
             }
         }, index * 300); // Stagger downloads
     });
+}
+
+// QR Code History & Favorites Functions
+
+// Load history from localStorage
+function loadHistory() {
+    try {
+        const saved = localStorage.getItem('qr-history');
+        qrHistory = saved ? JSON.parse(saved) : [];
+        updateHistoryDisplay();
+    } catch (error) {
+        console.error('Error loading history:', error);
+        qrHistory = [];
+    }
+}
+
+// Save history to localStorage
+function saveHistory() {
+    try {
+        localStorage.setItem('qr-history', JSON.stringify(qrHistory));
+    } catch (error) {
+        console.error('Error saving history:', error);
+        showError('Failed to save history (storage full?)');
+    }
+}
+
+// Save current QR code configuration
+function saveCurrentQR() {
+    const content = document.getElementById('qrContent').value.trim();
+    if (!content) {
+        showError('Please enter some content first.');
+        return;
+    }
+
+    const config = {
+        content: content,
+        dotShape: document.querySelector('input[name="dotShape"]:checked').value,
+        dotColor: document.getElementById('dotColor').value,
+        cornerShape: document.querySelector('input[name="cornerShape"]:checked').value,
+        cornerColor: document.getElementById('cornerColor').value,
+        cornerDotColor: document.getElementById('cornerDotColor').value,
+        backgroundColor: document.getElementById('backgroundColor').value,
+        logoSize: document.getElementById('logoSize').value,
+        logoMargin: document.getElementById('logoMargin').value,
+        hasLogo: !!currentLogoDataUrl,
+        timestamp: Date.now(),
+        favorite: false
+    };
+
+    // Check if already exists
+    const existingIndex = qrHistory.findIndex(item => item.content === content);
+    if (existingIndex !== -1) {
+        qrHistory[existingIndex] = config;
+        showSuccess('QR code updated in history!');
+    } else {
+        qrHistory.unshift(config); // Add to beginning
+        showSuccess('QR code saved to history!');
+    }
+
+    // Limit history to 100 items
+    if (qrHistory.length > 100) {
+        qrHistory = qrHistory.slice(0, 100);
+    }
+
+    saveHistory();
+    updateHistoryDisplay();
+}
+
+// Toggle history view
+function toggleHistoryView() {
+    const section = document.getElementById('historySection');
+    const isVisible = section.style.display !== 'none';
+
+    if (isVisible) {
+        section.style.display = 'none';
+    } else {
+        section.style.display = 'block';
+        updateHistoryDisplay();
+    }
+}
+
+// Update history display
+function updateHistoryDisplay() {
+    const container = document.getElementById('historyContainer');
+    const countSpan = document.getElementById('historyCount');
+
+    countSpan.textContent = qrHistory.length;
+
+    if (qrHistory.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No saved QR codes yet</div>';
+        return;
+    }
+
+    const filteredHistory = currentHistoryFilter
+        ? qrHistory.filter(item =>
+            item.content.toLowerCase().includes(currentHistoryFilter.toLowerCase())
+          )
+        : qrHistory;
+
+    if (filteredHistory.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No matching QR codes found</div>';
+        return;
+    }
+
+    const itemsHTML = filteredHistory.map((item, index) => {
+        const date = new Date(item.timestamp).toLocaleDateString();
+        const time = new Date(item.timestamp).toLocaleTimeString();
+        const truncatedContent = item.content.length > 40
+            ? item.content.substring(0, 40) + '...'
+            : item.content;
+
+        return `
+            <div style="border: 1px solid #ddd; border-radius: 6px; padding: 10px; margin-bottom: 10px; background: white; position: relative;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold; color: #333; font-size: 13px; word-break: break-word;">${truncatedContent}</div>
+                        <div style="font-size: 11px; color: #666; margin-top: 4px;">${date} at ${time}</div>
+                    </div>
+                    <button onclick="toggleFavorite(${qrHistory.indexOf(item)})"
+                            style="background: none; border: none; font-size: 16px; cursor: pointer; margin-left: 10px;"
+                            title="${item.favorite ? 'Remove from favorites' : 'Add to favorites'}">
+                        ${item.favorite ? '⭐' : '☆'}
+                    </button>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <span style="background: ${item.dotColor}; width: 15px; height: 15px; border-radius: 3px; display: inline-block;" title="Dot color"></span>
+                    <span style="background: ${item.cornerColor}; width: 15px; height: 15px; border-radius: 3px; display: inline-block;" title="Corner color"></span>
+                    <span style="background: ${item.backgroundColor}; width: 15px; height: 15px; border-radius: 3px; border: 1px solid #ddd; display: inline-block;" title="Background color"></span>
+                    ${item.hasLogo ? '<span style="font-size: 12px; color: #666;">📷 Logo</span>' : ''}
+                </div>
+                <div style="display: flex; gap: 6px; margin-top: 8px;">
+                    <button onclick="loadHistoryItem(${qrHistory.indexOf(item)})"
+                            style="background: #3498db; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer;">
+                        Load
+                    </button>
+                    <button onclick="duplicateHistoryItem(${qrHistory.indexOf(item)})"
+                            style="background: #f39c12; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer;">
+                        Duplicate
+                    </button>
+                    <button onclick="deleteHistoryItem(${qrHistory.indexOf(item)})"
+                            style="background: #e74c3c; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer;">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    container.innerHTML = itemsHTML;
+}
+
+// Load a history item
+function loadHistoryItem(index) {
+    const item = qrHistory[index];
+    if (!item) return;
+
+    // Load configuration
+    document.getElementById('qrContent').value = item.content;
+    document.querySelector(`input[name="dotShape"][value="${item.dotShape}"]`).checked = true;
+    document.getElementById('dotColor').value = item.dotColor;
+    document.querySelector(`input[name="cornerShape"][value="${item.cornerShape}"]`).checked = true;
+    document.getElementById('cornerColor').value = item.cornerColor;
+    document.getElementById('cornerDotColor').value = item.cornerDotColor;
+    document.getElementById('backgroundColor').value = item.backgroundColor;
+    document.getElementById('logoSize').value = item.logoSize;
+    document.getElementById('logoMargin').value = item.logoMargin;
+
+    updateLogoSizeLabel();
+    updateLogoMarginLabel();
+    updateQRCode();
+    showSuccess('QR configuration loaded!');
+}
+
+// Duplicate a history item
+function duplicateHistoryItem(index) {
+    const item = qrHistory[index];
+    if (!item) return;
+
+    const duplicate = { ...item };
+    duplicate.timestamp = Date.now();
+    duplicate.content = `${item.content} (copy)`;
+    duplicate.favorite = false;
+
+    qrHistory.unshift(duplicate);
+    saveHistory();
+    updateHistoryDisplay();
+    showSuccess('QR code duplicated!');
+}
+
+// Delete a history item
+function deleteHistoryItem(index) {
+    if (index < 0 || index >= qrHistory.length) return;
+
+    if (confirm('Are you sure you want to delete this QR code from history?')) {
+        qrHistory.splice(index, 1);
+        saveHistory();
+        updateHistoryDisplay();
+        showSuccess('QR code deleted from history.');
+    }
+}
+
+// Toggle favorite status
+function toggleFavorite(index) {
+    const item = qrHistory[index];
+    if (!item) return;
+
+    item.favorite = !item.favorite;
+    saveHistory();
+    updateHistoryDisplay();
+    showSuccess(item.favorite ? 'Added to favorites!' : 'Removed from favorites.');
+}
+
+// Filter history
+function filterHistory() {
+    currentHistoryFilter = document.getElementById('historySearch').value;
+    updateHistoryDisplay();
+}
+
+// Clear all history
+function clearHistory() {
+    if (confirm('Are you sure you want to clear all QR code history? This cannot be undone.')) {
+        qrHistory = [];
+        saveHistory();
+        updateHistoryDisplay();
+        showSuccess('History cleared.');
+    }
+}
+
+// vCard Builder Functions
+
+// Show vCard builder modal
+function showVCardBuilder() {
+    document.getElementById('vcardModal').style.display = 'block';
+    // Clear previous values
+    document.getElementById('vcardFirstName').value = '';
+    document.getElementById('vcardLastName').value = '';
+    document.getElementById('vcardOrg').value = '';
+    document.getElementById('vcardTitle').value = '';
+    document.getElementById('vcardPhone').value = '';
+    document.getElementById('vcardEmail').value = '';
+    document.getElementById('vcardUrl').value = '';
+    document.getElementById('vcardAddress').value = '';
+    document.getElementById('vcardNotes').value = '';
+    document.getElementById('vcardPreview').style.display = 'none';
+}
+
+// Close vCard builder modal
+function closeVCardBuilder() {
+    document.getElementById('vcardModal').style.display = 'none';
+}
+
+// Handle ESC key to close modal
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        const modal = document.getElementById('vcardModal');
+        if (modal && modal.style.display === 'block') {
+            closeVCardBuilder();
+        }
+    }
+});
+
+// Generate vCard content
+function buildVCardContent() {
+    const firstName = document.getElementById('vcardFirstName').value.trim();
+    const lastName = document.getElementById('vcardLastName').value.trim();
+    const org = document.getElementById('vcardOrg').value.trim();
+    const title = document.getElementById('vcardTitle').value.trim();
+    const phone = document.getElementById('vcardPhone').value.trim();
+    const email = document.getElementById('vcardEmail').value.trim();
+    const url = document.getElementById('vcardUrl').value.trim();
+    const address = document.getElementById('vcardAddress').value.trim();
+    const notes = document.getElementById('vcardNotes').value.trim();
+
+    if (!firstName || !lastName) {
+        throw new Error('First name and last name are required.');
+    }
+
+    let vcard = 'BEGIN:VCARD\n';
+    vcard += 'VERSION:3.0\n';
+    vcard += `FN:${firstName} ${lastName}\n`;
+    vcard += `N:${lastName};${firstName};;;\n`;
+
+    if (org) {
+        vcard += `ORG:${org}\n`;
+    }
+
+    if (title) {
+        vcard += `TITLE:${title}\n`;
+    }
+
+    if (phone) {
+        vcard += `TEL:${phone}\n`;
+    }
+
+    if (email) {
+        vcard += `EMAIL:${email}\n`;
+    }
+
+    if (url) {
+        vcard += `URL:${url}\n`;
+    }
+
+    if (address) {
+        vcard += `ADR:;;${address};;;;\n`;
+    }
+
+    if (notes) {
+        vcard += `NOTE:${notes}\n`;
+    }
+
+    vcard += 'END:VCARD';
+    return vcard;
+}
+
+// Preview vCard content
+function previewVCard() {
+    try {
+        const vcard = buildVCardContent();
+        const preview = document.getElementById('vcardPreview');
+        preview.textContent = vcard;
+        preview.style.display = 'block';
+    } catch (error) {
+        showError(error.message);
+    }
+}
+
+// Generate vCard QR code
+function generateVCard() {
+    try {
+        const vcard = buildVCardContent();
+        document.getElementById('qrContent').value = vcard;
+        updateQRCode();
+        closeVCardBuilder();
+        showSuccess('Contact vCard QR code generated!');
+    } catch (error) {
+        showError(error.message);
+    }
 }
 
 // Add CSS animation
