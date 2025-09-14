@@ -210,7 +210,9 @@ MIT License - feel free to use, modify, and distribute.
 - **📁 GitHub**: https://github.com/r4z33n4l1/qr-maker
 - **🐛 Report Issues**: https://github.com/r4z33n4l1/qr-maker/issues
 - **📖 Documentation**: This README file
+- **👨‍💻 Developer**: https://razeenali.com
 
 ---
 
 **Made with ❤️ for the community | Powered by qr-code-styling library**
+**Created by [Razeen Ali](https://razeenali.com)**
